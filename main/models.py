@@ -56,27 +56,30 @@ class Group(models.Model):
         return f"{self.name} ({self.course})"
 
 
-class RoleUserMixin:
+class RoleUser(models.Model):
     company_user = models.ForeignKey(CompanyUser, on_delete=models.CASCADE)
 
     @property
     def userprofile(self):
         return self.company_user.userprofile
 
+    class Meta:
+        abstract = True
+
     def __str__(self):
         return f"{self.userprofile.user.username}"
 
 
-class Student(models.Model, RoleUserMixin):
+class Student(RoleUser):
     groups = models.ManyToManyField(Group, blank=True, related_name='students')
     average_mark = models.IntegerField(default=0)  # необязательное поле для относительной оценки обучаемости студентов преподом
 
 
-class Teacher(models.Model, RoleUserMixin):
+class Teacher(RoleUser):
     groups = models.ManyToManyField(Group, related_name='teachers')  # учителей может быть больше одного
     courses = models.ManyToManyField(Course, blank=True, related_name='teachers')  # курсы которые ведет в этой компании
     rang = models.IntegerField(default=1)
 
 
-class Admin(models.Model, RoleUserMixin):
+class Admin(RoleUser):
     is_superadmin = models.BooleanField(default=False)
