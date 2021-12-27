@@ -1,5 +1,6 @@
 from django.db import models
 from authsys.models import UserProfile
+import datetime
 
 
 # Create your models here.
@@ -64,13 +65,16 @@ class Subject(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.name} ({self.company})"
 
 
 class Course(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=1000, blank=True)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+
+    teacher_payment = models.IntegerField(default=200)
+    student_payment = models.IntegerField(default=350)
 
     def __str__(self):
         return f"{self.name} ({self.subject})"
@@ -112,3 +116,52 @@ class Teacher(RoleUser):
 
 class Admin(RoleUser):
     is_superadmin = models.BooleanField(default=False)
+
+
+class PlannedLesson(models.Model):
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    time_start = models.TimeField()
+    duration = models.IntegerField(default=90)  # у хвилинах
+    day = models.IntegerField(default=1)
+
+    days = {
+        1: 'понеділок',
+        2: 'вівторок',
+        3: 'середа',
+        4: 'четвер',
+        5: 'п`ятниця',
+        6: 'субота',
+        7: 'неділя',
+    }
+
+    def __str__(self):
+        return f"{self.days[self.day]} {self.time_start}  ({self.duration} m) - {self.group}"
+
+
+class Lesson(models.Model):
+    time_start = models.TimeField()
+    date_start = models.TimeField()
+    name = models.CharField(max_length=60)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    planned_lesson = models.ForeignKey(PlannedLesson, on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    duration = models.IntegerField(default=90)
+    present_students = models.ManyToManyField(Student, related_name='lessons')
+
+    @classmethod
+    def create_from_planed(cls, planned_lesson: PlannedLesson, date: datetime.date):
+        return cls.create(
+            time_start=planned_lesson.time_start,
+            date_start=date,
+            name='',
+            group=planned_lesson.group,
+            planned_lesson=planned_lesson,
+            duration=planned_lesson.duration,
+        )
+
+    @classmethod
+    def autogenerate_for_period(cls, months=2):
+        pass
+
+
+    def __str__(self):
+        return f"{self.name} ({self.date_start}  {self.time_start})  ({self.duration} m)"

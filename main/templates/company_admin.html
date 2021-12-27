@@ -69,7 +69,7 @@
             <div class="buttons">
                 <button class="btn btn-outline-success" onclick="window.location='{% url 'main:subjects' comp_user.id %}'">Предмети ({{ company.subject_set.count }})</button>
                 <button class='btn btn-outline-secondary'>Курси ({{ company.courses_amount }})</button>
-                <button class="btn btn-outline-secondary">Групи ({{ company.groups_amount }})</button>
+                <button class="btn btn-outline-success" onclick="window.location='{% url 'main:groups' comp_user.id %}'">Групи ({{ company.groups_amount }})</button>
                 <button class="btn btn-outline-secondary">Студенти ({{ company.student_set.count }})</button>
             </div>
 

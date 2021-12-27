@@ -73,3 +73,20 @@ def delete_subject(request, id, subject_id):
     subject = Subject.objects.get(id=subject_id)
     subject.delete()
     return redirect(f'/main/company/{id}/subjects')
+
+
+def groups(request, id):
+    comp_user = CompanyUser.objects.get(id=id)
+    company = comp_user.company
+    groups = company.groups
+
+    result = []
+    for group in groups:
+        group_dict = {'group': group, 'students': []}
+        students = group.students.all()
+        for student in students:
+            userprofile = student.company_user.userprofile
+            group_dict['students'].append({'student': student, 'userprofile': userprofile})
+        result.append(group_dict)
+
+    return render(request, 'groups.html', context={'groups': result, 'comp_user': comp_user})

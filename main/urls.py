@@ -16,4 +16,6 @@ urlpatterns = [
     path('company/<int:id>/edit_subject/<int:subject_id>', edit_subject, name='edit_subject'),
     path('company/<int:id>/create_subject', create_subject, name='create_subject'),
     path('company/<int:id>/delete_subject/<int:subject_id>', delete_subject, name='delete_subject'),
+
+    path('company/<int:id>/groups', groups, name='groups')
 ]
