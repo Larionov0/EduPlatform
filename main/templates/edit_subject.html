@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+    <title>Edit subject</title>
+{% endblock %}
+
+{% block styles %}
+<style>
+  body {
+        margin: 0px;
+        padding: 0px;
+    }
+
+    .wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .company {
+        display: flex;
+        flex-direction: column;
+        width: 70%;
+        background-color: rgb(231, 255, 247);
+        min-height: 800px;
+        padding: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="company">
+        
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input class="btn btn-outline-success" type="submit" value="Зберегти">
+            <!-- <button class="btn btn-outline-success" onclick="window.location='{% url 'main:create_subject' comp_user.id %}'">Зберегти</button> -->
+        </form>
+        <button class="btn btn-outline-danger" onclick="window.location='{% url 'main:delete_subject' comp_user.id subject.id%}'">Видалити</button>
+        
+    </div>
+</div>
+{% endblock %}

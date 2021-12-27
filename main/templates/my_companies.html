@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+    <title>My companies</title>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .companies {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .company {
+        background-color: rgba(0, 255, 255, 0.295);
+        border-radius: 10px;
+        width: 70%;
+        padding: 10px;
+        margin: 10px;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    .company h1 {
+        margin: 10px 35px;
+        transition: 0.3s;
+    }
+
+    .company h1:hover {
+        margin: 10px 55px;
+        transition: 0.7s;
+    }
+
+    .company p {
+        font-size: large;
+        background-color: rgba(115, 224, 224, 0.164);
+        padding: 10px;
+        margin: 0px 10px;
+        border-radius: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="companies">
+        <h1>Доступні вам компанії:</h1>
+        {% for company in companies %}
+            <div class="company">
+                <a href="{% url 'main:enter_company' company.id %}"> <h1>{{ company.name }}</h1> </a>
+                <p>{{ company.description }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

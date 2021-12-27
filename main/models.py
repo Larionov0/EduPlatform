@@ -6,7 +6,36 @@ from authsys.models import UserProfile
 class Company(models.Model):
     owner = models.ForeignKey(UserProfile, on_delete=models.PROTECT)
     name = models.CharField(max_length=60)
-    description = models.TextField(max_length=1000)
+    description = models.TextField(max_length=1000, blank=True)
+
+    def calculate_income(self):
+        return 0
+
+    def calculate_spends(self):
+        return 0
+
+    def calculate_income_last_month(self):
+        return 0
+
+    def calculate_spends_last_month(self):
+        return 0
+
+    @property
+    def courses(self):
+        subjects = Subject.objects.filter(company=self)
+        return Course.objects.filter(subject__in=subjects)
+
+    @property
+    def courses_amount(self):
+        return len(self.courses)
+
+    @property
+    def groups(self):
+        return Group.objects.filter(course__in=self.courses)
+
+    @property
+    def groups_amount(self):
+        return len(self.groups)
 
     def __str__(self):
         return f'{self.name}'
@@ -31,7 +60,7 @@ class CompanyUser(models.Model):
 
 class Subject(models.Model):
     name = models.CharField(max_length=60)
-    description = models.TextField(max_length=1000)
+    description = models.TextField(max_length=1000, blank=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -40,7 +69,7 @@ class Subject(models.Model):
 
 class Course(models.Model):
     name = models.CharField(max_length=100)
-    description = models.TextField(max_length=1000)
+    description = models.TextField(max_length=1000, blank=True)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -49,7 +78,7 @@ class Course(models.Model):
 
 class Group(models.Model):
     name = models.CharField(max_length=50)
-    description = models.TextField(max_length=1000)
+    description = models.TextField(max_length=1000, blank=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
     def __str__(self):
