@@ -2,6 +2,7 @@ from django.shortcuts import render, HttpResponse, redirect
 from .models import *
 from .forms import *
 import plotly.graph_objs as go
+from django.contrib.auth.decorators import login_required
 
 
 def subjects(request, id):
@@ -11,6 +12,7 @@ def subjects(request, id):
 
 
 # Create your views here.
+@login_required(login_url='/auth/sign_in')
 def my_companies(request):
     companies_users = CompanyUser.objects.filter(userprofile=request.user.userprofile)
     companies_ids = set([company_user.company_id for company_user in companies_users])
