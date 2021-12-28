@@ -6,5 +6,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('main/', include('main.urls')),
     path('auth/', include('authsys.urls')),
-    path('', RedirectView.as_view(url='/main/'))
+    path('', RedirectView.as_view(url='/main/my_companies'))
 ]
