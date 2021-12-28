@@ -1,9 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from .models import *
 from .forms import *
-
-from django.utils import timezone
-from django.views.generic.list import ListView
+import plotly.graph_objs as go
 
 
 def subjects(request, id):
@@ -30,11 +28,36 @@ def enter_company(request, id):
     }[role_name](request, comp_user.id)
 
 
+def get_1day_date(date):
+    return datetime.date(year=date.year, month=date.month, day=1)
+
+
 def company_admin(request, comp_user_id):
     comp_user = CompanyUser.objects.get(id=comp_user_id, userprofile__user__id=request.user.id)
     company = comp_user.company
 
-    return render(request, 'company_admin.html', {'company': company, 'comp_user': comp_user})
+    date = get_1day_date(datetime.date.today())
+    months = {}
+    for _ in range(6):
+        income = company.calculate_income_for_month(date)
+        spends = company.calculate_spends_for_month(date)
+        value = income - spends
+        months[f"{date.year}-{date.month}"] = {'income': income, 'spends': spends, 'value': value}
+        date = get_1day_date(date - datetime.timedelta(days=25))
+
+    translate = {
+        'income': 'Прибуток',
+        'spends': 'Витрати',
+        'value': 'Чиста виручка'
+    }
+
+    diags = []
+    for label, ua_label in translate.items():
+        diags.append(go.Bar(x=[month for month in months], y=[data[label] for data in months.values()], name=ua_label))
+    fig = go.Figure(data=diags)
+    graph_html = fig.to_html()
+
+    return render(request, 'company_admin.html', {'company': company, 'comp_user': comp_user, 'graph_html': graph_html})
 
 
 def company_teacher(request, comp_user_id):
@@ -82,7 +105,29 @@ def groups(request, id):
 
     result = []
     for group in groups:
-        group_dict = {'group': group, 'students': []}
+        date = get_1day_date(datetime.date.today())
+        months = {}
+        for _ in range(6):
+            income = group.calculate_students_payment(date)
+            spends = group.calculate_teacher_payment(date)
+            value = income - spends
+            months[f"{date.year}-{date.month}"] = {'income': income, 'spends': spends, 'value': value}
+            date = get_1day_date(date - datetime.timedelta(days=25))
+
+        translate = {
+            'income': 'Прибуток',
+            'spends': 'Витрати',
+            'value': 'Чиста виручка'
+        }
+
+        diags = []
+        for label, ua_label in translate.items():
+            diags.append(
+                go.Bar(x=[month for month in months], y=[data[label] for data in months.values()], name=ua_label))
+        fig = go.Figure(data=diags)
+        graph_html = fig.to_html()
+
+        group_dict = {'group': group, 'students': [], 'graph_html': graph_html}
         students = group.students.all()
         for student in students:
             userprofile = student.company_user.userprofile

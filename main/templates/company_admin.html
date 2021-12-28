@@ -61,6 +61,10 @@
                     <th scope="row">Останній місяць</th><td>{{ company.calculate_income_last_month }}</td><td>{{ company.calculate_spends_last_month }}</td>
                 </tr>
             </table>
+
+            <div class="graph" style="width:600;height:500">
+                {{ graph_html|safe }}
+            </div>
             <!-- <p>Дохід: {{ company.calculate_income }}</p>
             <p>Витрати: {{ company.calculate_spends }}</p>
             <p>Дохід за останній місяць: {{ company.calculate_income_last_month }}</p>
@@ -68,9 +72,9 @@
             
             <div class="buttons">
                 <button class="btn btn-outline-success" onclick="window.location='{% url 'main:subjects' comp_user.id %}'">Предмети ({{ company.subject_set.count }})</button>
-                <button class='btn btn-outline-secondary'>Курси ({{ company.courses_amount }})</button>
                 <button class="btn btn-outline-success" onclick="window.location='{% url 'main:groups' comp_user.id %}'">Групи ({{ company.groups_amount }})</button>
-                <button class="btn btn-outline-secondary">Студенти ({{ company.student_set.count }})</button>
+                <button class='btn btn-outline-secondary'>Курси ({{ company.courses_amount }})</button>
+                <button class="btn btn-outline-secondary">Студенти ({{ company.students_amount }})</button>
             </div>
 
             <button style="margin: 50px;" class="btn btn-outline-dark" onclick="window.location='{% url 'main:my_companies' %}'">Повернутися</button>

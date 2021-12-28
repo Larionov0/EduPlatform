@@ -1,6 +1,7 @@
 from django.db import models
 from authsys.models import UserProfile
 import datetime
+import calendar
 
 
 # Create your models here.
@@ -9,17 +10,27 @@ class Company(models.Model):
     name = models.CharField(max_length=60)
     description = models.TextField(max_length=1000, blank=True)
 
+    @property
+    def students_amount(self):  # FIXME: wrong way
+        return Student.objects.count()
+
     def calculate_income(self):
-        return 0
+        return sum(group.calculate_students_payment() for group in Group.objects.filter(course__subject__company=self))
 
     def calculate_spends(self):
-        return 0
+        return sum(group.calculate_teacher_payment() for group in Group.objects.filter(course__subject__company=self))
 
     def calculate_income_last_month(self):
-        return 0
+        return sum(group.calculate_students_payment(datetime.date.today()) for group in Group.objects.filter(course__subject__company=self))
 
     def calculate_spends_last_month(self):
-        return 0
+        return sum(group.calculate_teacher_payment(datetime.date.today()) for group in Group.objects.filter(course__subject__company=self))
+
+    def calculate_income_for_month(self, month: datetime.date):
+        return sum(group.calculate_students_payment(month) for group in Group.objects.filter(course__subject__company=self))
+
+    def calculate_spends_for_month(self, month: datetime.date):
+        return sum(group.calculate_teacher_payment(month) for group in Group.objects.filter(course__subject__company=self))
 
     @property
     def courses(self):
@@ -85,6 +96,28 @@ class Group(models.Model):
     description = models.TextField(max_length=1000, blank=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
+    def calculate_students_payment(self, month: datetime.date=None):
+        if month:
+            lessons = Lesson.objects.filter(
+                date_start__gte=datetime.date(month.year, month.month, 1),
+                date_start__lte=datetime.date(month.year, month.month, calendar.monthrange(month.year, month.month)[1]),
+                group=self
+            )
+        else:
+            lessons = Lesson.objects.filter(group=self)
+        return sum([lesson.calc_student_payment() * lesson.present_students.count() for lesson in lessons])
+
+    def calculate_teacher_payment(self, month: datetime.date=None):
+        if month:
+            lessons = Lesson.objects.filter(
+                date_start__gte=datetime.date(month.year, month.month, 1),
+                date_start__lte=datetime.date(month.year, month.month, calendar.monthrange(month.year, month.month)[1]),
+                group=self
+            )
+        else:
+            lessons = Lesson.objects.filter(group=self)
+        return sum([lesson.calc_teacher_payment() for lesson in lessons])
+
     def __str__(self):
         return f"{self.name} ({self.course})"
 
@@ -113,6 +146,12 @@ class Teacher(RoleUser):
     courses = models.ManyToManyField(Course, blank=True, related_name='teachers')  # курсы которые ведет в этой компании
     rang = models.IntegerField(default=1)
 
+    def calc_salary_for_cur_month(self, company=None):
+        if company is None:
+            return sum([group.calculate_teacher_payment(datetime.date.today()) for group in self.groups.all()])
+        else:
+            return sum([group.calculate_teacher_payment(datetime.date.today()) for group in self.groups.filter(course__subject__company=company)])
+
 
 class Admin(RoleUser):
     is_superadmin = models.BooleanField(default=False)
@@ -138,9 +177,16 @@ class PlannedLesson(models.Model):
         return f"{self.days[self.day]} {self.time_start}  ({self.duration} m) - {self.group}"
 
 
+def get_dates(days_numbers, start_date: datetime.date, end_date: datetime.date):
+    while start_date <= end_date:
+        if start_date.weekday() + 1 in days_numbers:
+            yield start_date
+        start_date += datetime.timedelta(days=1)
+
+
 class Lesson(models.Model):
     time_start = models.TimeField()
-    date_start = models.TimeField()
+    date_start = models.DateField()
     name = models.CharField(max_length=60)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     planned_lesson = models.ForeignKey(PlannedLesson, on_delete=models.SET_NULL, null=True, blank=True, default=None)
@@ -149,19 +195,36 @@ class Lesson(models.Model):
 
     @classmethod
     def create_from_planed(cls, planned_lesson: PlannedLesson, date: datetime.date):
-        return cls.create(
+        return cls.objects.get_or_create(
             time_start=planned_lesson.time_start,
             date_start=date,
-            name='',
-            group=planned_lesson.group,
             planned_lesson=planned_lesson,
+            group=planned_lesson.group,
             duration=planned_lesson.duration,
-        )
+            defaults=dict(
+                name='',
+            )
+        )[0]
 
     @classmethod
-    def autogenerate_for_period(cls, months=2):
-        pass
+    def autogenerate_for_period(cls, group: Group, delta_from_now=datetime.timedelta(days=60)):
+        planned_lessons = group.plannedlesson_set.all()
+        today = datetime.date.today()
+        planned_dict = {}
+        for lesson in planned_lessons:
+            planned_dict[lesson.day] = lesson
+        dates = get_dates(list(planned_dict.keys()), today-delta_from_now, today)
+        for date in dates:
+            planned = planned_dict[date.weekday() + 1]
+            lesson = cls.create_from_planed(planned, date)
+            for student in group.students.all():
+                lesson.present_students.add(student)
 
+    def calc_student_payment(self):
+        return self.group.course.student_payment * (1 / (self.group.students.count() ** 0.5))
+
+    def calc_teacher_payment(self):
+        return self.group.course.teacher_payment * (self.present_students.count() ** 0.5)
 
     def __str__(self):
         return f"{self.name} ({self.date_start}  {self.time_start})  ({self.duration} m)"

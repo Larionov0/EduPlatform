@@ -68,6 +68,12 @@
                     <h3>{{ group_dict.group.name }}</h3>
                     <p>{{ group_dict.group.course }}</p>
                     <p>{{ group_dict.group.description }}</p>
+                    <p>Всього зароблено: {{ group_dict.group.calculate_students_payment }}</p>
+                    <p>Витрачено на зарплату: {{ group_dict.group.calculate_teacher_payment }}</p>
+
+                    <div style="height: 500px; width: 100%">
+                        {{ group_dict.graph_html|safe }}
+                    </div>
                     
                     <table class="table">
                         <tr>
