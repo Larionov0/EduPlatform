@@ -6,6 +6,7 @@
 ```
 python -m venv venv
 ```
+Це займе секунд 30
 5. Активуємо venv
 Windows:
 ```
@@ -25,6 +26,8 @@ pip install -r requirements.txt
 pip3 install -r requirements.txt
 ```
 
+Займе приблизно хвилину-три
+
 7. Запускаємо сайт локально:
 ```
 python manage.py runserver
@@ -33,6 +36,12 @@ python manage.py runserver
 8. Відкриваємо браузер і переходимо за посиланням:
 http://127.0.0.1:8000/
 
+
+Логін і пароль адміна:
+
+логін: admin
+
+пароль: admin
 
 ---
 
