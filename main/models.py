@@ -3,6 +3,7 @@ from authsys.models import UserProfile
 import datetime
 import calendar
 import random
+from main.tools.calc_module import optimize_price
 
 
 # Create your models here.
@@ -126,6 +127,14 @@ class Group(models.Model):
         else:
             lessons = Lesson.objects.filter(group=self)
         return sum([lesson.calc_teacher_payment() for lesson in lessons])
+
+    def mm_calculate_payment_recommendation(self):
+        teachers = list(self.teachers.all())
+        t_p = 80 if len(teachers) == 0 else teachers[0].professionalism
+        company = self.course.subject.company
+        result = optimize_price(self.students.count(), self.course.complexity, t_p, company.C_t_min, company.C_s_min,
+                                company.p_t_ser, company.p_s_ser)
+        return result
 
     def when_is_next_lesson(self):
         planned_lessons = list(self.plannedlesson_set.all())
@@ -255,7 +264,7 @@ class Lesson(models.Model):
             planned = planned_dict[date.weekday() + 1]
             lesson = cls.create_from_planed(planned, date)
             for student in group.students.all():
-                if random.randint(1, 100) > student.presence_chance:
+                if random.randint(1, 100) <= student.presence_chance:
                     lesson.present_students.add(student)
 
     def calc_student_payment(self):
@@ -265,6 +274,10 @@ class Lesson(models.Model):
 
     def calc_teacher_payment(self):
         return self.group.course.teacher_payment * (self.present_students.count() ** 0.5)
+
+    def calc_recommendation_payments(self):
+        ps, pt, price = self.group.mm_calculate_payment_recommendation()
+        return ps, pt
 
     def __str__(self):
         return f"{self.name} ({self.date_start}  {self.time_start})  ({self.duration} m)"

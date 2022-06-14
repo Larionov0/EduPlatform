@@ -1,5 +1,5 @@
 import numpy as np
-from simplex_custom import get_solution, simplex
+# from simplex_custom import get_solution, simplex
 
 # c = [-7200, 50400, 0, 0, 0, 0]
 # A = [
@@ -38,9 +38,10 @@ def solve(c, A, b):
     res = linprog(c, A_ub=A, b_ub=b, method='simplex',
                   options={"disp": True, "presolve": False})
 
-    print(f"{ps(res.x[0], 7, 90, 80)}")
-    print(f"{pt(res.x[1], 7, 90, 80)}")
+    # print(f"{ps(res.x[0], 7, 90, 80)}")
+    # print(f"{pt(res.x[1], 7, 90, 80)}")
     return [ps(res.x[0], 7, 90, 80), pt(res.x[1], 7, 90, 80), res.fun]
 
 
-main_test()
+if __name__ == '__main__':
+    main_test()

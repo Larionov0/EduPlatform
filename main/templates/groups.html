@@ -70,6 +70,9 @@
                     <p>{{ group_dict.group.description }}</p>
                     <p>Всього зароблено: {{ group_dict.group.calculate_students_payment }}</p>
                     <p>Витрачено на зарплату: {{ group_dict.group.calculate_teacher_payment }}</p>
+                    <p>Ціни, рекомандовані математичною моделлю:</p>
+                    <p>Студент за годину: {{ group_dict.r_student }}</p>
+                    <p>Викладачу за годину: {{ group_dict.r_teacher }}</p>
 
                     <div style="height: 500px; width: 100%">
                         {{ group_dict.graph_html|safe }}

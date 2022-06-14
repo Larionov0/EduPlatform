@@ -96,6 +96,8 @@ def groups(request, id):
         for student in students:
             userprofile = student.company_user.userprofile
             group_dict['students'].append({'student': student, 'userprofile': userprofile})
+
+        group_dict['r_teacher'], group_dict['r_student'], price = group.mm_calculate_payment_recommendation()
         result.append(group_dict)
 
     return render(request, 'groups.html', context={'groups': result, 'comp_user': comp_user})
