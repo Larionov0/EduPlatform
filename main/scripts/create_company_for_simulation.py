@@ -1,4 +1,5 @@
 from main.models import *
+from authsys.models import *
 import random
 
 
@@ -11,7 +12,7 @@ disc_names = ['Математика', "Укр література", "Укр м�
 
 def generate_company(students_amount, name, C_t_min, C_s_min, p_t_ser, p_s_ser, disciplines_amount, courses_amount, groups_amount):
     company = Company.objects.create(
-        owner=UserProfile.objects.all([0]),
+        owner=UserProfile.objects.get(user=User.objects.get(username='admin')),
         name=name,
         description='',
         C_t_min=C_t_min,
@@ -58,21 +59,24 @@ def generate_company(students_amount, name, C_t_min, C_s_min, p_t_ser, p_s_ser, 
                 day=5
             )
 
+    print('all done, now students:')
     all_students = []
-    for i in range(amount):
+    for i in range(students_amount):
+        if i % 10 == 0:
+            print(f'Done with {i} students')
         name = random.choice(stud_names)
         surname = random.choice(stud_surnames)
 
-        user = User.objects.create_user(username=f"{name} {surname}", password=user_dict['surname'])
+        user = User.objects.create_user(username=f"{name} {surname} {random.randint(100,999)}", password=surname)
         userprofile = UserProfile.objects.create(user=user, name=name, surname=surname)
         company_user = CompanyUser.objects.create(
             company=company,
             userprofile=userprofile,
             role=Role.objects.get(name='student'),
         )
-        student = Student.objects.create(precence_chance=random.randint(60, 100), company_user=company_user)
+        student = Student.objects.create(presence_chance=random.randint(60, 100), company_user=company_user)
         all_students.append(student)
 
 
 def run():
-    generate_company()
+    generate_company(50, 'simulated3', -10, 4, 6.25, 5, 3, 5, 10)

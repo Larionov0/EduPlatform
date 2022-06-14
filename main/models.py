@@ -18,7 +18,8 @@ class Company(models.Model):
 
     @property
     def students_amount(self):  # FIXME: wrong way
-        return Student.objects.count()
+        # return Student.objects.count()
+        return CompanyUser.objects.filter(company=self, role__name='student').count()
 
     def calculate_income(self):
         return sum(group.calculate_students_payment() for group in Group.objects.filter(course__subject__company=self))
