@@ -2,6 +2,7 @@ from django.db import models
 from authsys.models import UserProfile
 import datetime
 import calendar
+import random
 
 
 # Create your models here.
@@ -254,9 +255,12 @@ class Lesson(models.Model):
             planned = planned_dict[date.weekday() + 1]
             lesson = cls.create_from_planed(planned, date)
             for student in group.students.all():
-                lesson.present_students.add(student)
+                if random.randint(1, 100) > student.presence_chance:
+                    lesson.present_students.add(student)
 
     def calc_student_payment(self):
+        if self.group.students.count() == 0:
+            return 0
         return self.group.course.student_payment * (1 / (self.group.students.count() ** 0.5))
 
     def calc_teacher_payment(self):

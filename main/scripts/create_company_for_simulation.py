@@ -74,9 +74,16 @@ def generate_company(students_amount, name, C_t_min, C_s_min, p_t_ser, p_s_ser, 
             userprofile=userprofile,
             role=Role.objects.get(name='student'),
         )
-        student = Student.objects.create(presence_chance=random.randint(60, 100), company_user=company_user)
+        student = Student.objects.create(presence_chance=random.randint(70, 100), company_user=company_user)
+
+        groups_amount = random.randint(1, 3)
+        my_groups = []
+        for j in range(groups_amount):
+            group = random.choice(list(set(groups) - set(my_groups)))
+            my_groups.append(group)
+            student.groups.add(group)
         all_students.append(student)
 
 
 def run():
-    generate_company(50, 'simulated3', -10, 4, 6.25, 5, 3, 5, 10)
+    generate_company(40, 'simulated1', -10, 4, 6.25, 5, 3, 5, 10)
