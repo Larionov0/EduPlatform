@@ -148,6 +148,18 @@ class Student(RoleUser):
     average_mark = models.IntegerField(default=0)  # необязательное поле для относительной оценки обучаемости студентов преподом
     presence_chance = models.IntegerField(default=100)  # 0 to 100
 
+    def get_my_lessons_statistic_by_group(self, group):
+        # FIXME: add date of start being in group checking
+        lessons = group.lesson_set.all()
+        be = 0
+        total = 0
+        for lesson in lessons:
+            if lesson.present_students.filter(id=self.id).exists():
+                be += 1
+            total += 1
+
+        return {'present': be, 'total': total}
+
 
 class Teacher(RoleUser):
     groups = models.ManyToManyField(Group, related_name='teachers')  # учителей может быть больше одного

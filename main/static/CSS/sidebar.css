@@ -15,6 +15,10 @@
   font-size: 0.8em;
 }
 
+.roles_panel li a {
+  border-radius: 20px;
+}
+
 .sidebar a {
   display: block;
   color: black;

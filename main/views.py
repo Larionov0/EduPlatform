@@ -53,9 +53,3 @@ def company_teacher(request, comp_user_id):
     comp_user = CompanyUser.objects.get(id=comp_user_id)
     return HttpResponse('Сторінка поки не готова :(')
 
-
-def company_student(request, comp_user_id):
-    comp_user = CompanyUser.objects.get(id=comp_user_id)
-    return HttpResponse('Сторінка поки не готова :(')
-
-
