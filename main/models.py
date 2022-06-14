@@ -10,6 +10,12 @@ class Company(models.Model):
     name = models.CharField(max_length=60)
     description = models.TextField(max_length=1000, blank=True)
 
+    C_t_min = models.IntegerField(default=0)  # %
+    C_s_min = models.IntegerField(default=0)
+
+    p_t_ser = models.FloatField(default=6)
+    p_s_ser = models.FloatField(default=5)
+
     @property
     def students_amount(self):  # FIXME: wrong way
         return Student.objects.count()
@@ -86,6 +92,7 @@ class Course(models.Model):
 
     teacher_payment = models.IntegerField(default=200)
     student_payment = models.IntegerField(default=350)
+    complexity = models.IntegerField(default=80)
 
     def __str__(self):
         return f"{self.name} ({self.subject})"
@@ -139,12 +146,14 @@ class RoleUser(models.Model):
 class Student(RoleUser):
     groups = models.ManyToManyField(Group, blank=True, related_name='students')
     average_mark = models.IntegerField(default=0)  # необязательное поле для относительной оценки обучаемости студентов преподом
+    presence_chance = models.IntegerField(default=100)  # 0 to 100
 
 
 class Teacher(RoleUser):
     groups = models.ManyToManyField(Group, related_name='teachers')  # учителей может быть больше одного
     courses = models.ManyToManyField(Course, blank=True, related_name='teachers')  # курсы которые ведет в этой компании
     rang = models.IntegerField(default=1)
+    professionalism = models.IntegerField(default=50)
 
     def calc_salary_for_cur_month(self, company=None):
         if company is None:
