@@ -125,6 +125,20 @@ class Group(models.Model):
             lessons = Lesson.objects.filter(group=self)
         return sum([lesson.calc_teacher_payment() for lesson in lessons])
 
+    def when_is_next_lesson(self):
+        planned_lessons = list(self.plannedlesson_set.all())
+        dt = datetime.datetime.now()
+        today_planned = [pl for pl in planned_lessons if pl.day==dt.weekday()+1 and pl.time_start >= dt.time()]
+        if today_planned:
+            return today_planned[0]
+
+        dat = dt.date()
+        for i in range(10):
+            dat = dat + datetime.timedelta(days=1)
+            planned = [pl for pl in planned_lessons if pl.day == dat.weekday() + 1]
+            if planned:
+                return planned[0]
+
     def __str__(self):
         return f"{self.name} ({self.course})"
 

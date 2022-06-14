@@ -8,7 +8,7 @@ from main.tools.functions import get_1day_date
 
 def company_student(request, comp_user_id):
     comp_user = CompanyUser.objects.get(id=comp_user_id)
-    student = Student.objects.get(company_user_id=comp_user.id)
+    student = Student.objects.get(company_user_id=comp_user_id)
     groups = student.groups.all()
     for group in groups:
         group.stat = student.get_my_lessons_statistic_by_group(group)

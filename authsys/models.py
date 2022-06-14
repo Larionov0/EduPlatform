@@ -23,13 +23,16 @@ class UserProfile(models.Model):
         ids = []
         for c_user in self.companyuser_set.all():
             company = c_user.company
-            if company.id in ids:
-                continue
             company.selected = c_user.id == self.active_company_user_id
+            if company.id in ids:
+                if company.selected:
+                    companies[ids.index(company.id)] = company
+                continue
+
             ids.append(company.id)
             companies.append(company)
 
-        # print([comp.selected for comp in lst])
+        print([comp.selected for comp in companies])
         return companies
 
     @property
