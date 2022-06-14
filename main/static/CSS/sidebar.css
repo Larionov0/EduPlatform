@@ -8,6 +8,13 @@
   overflow: auto;
 }
 
+.roles_panel {
+  margin: 5px;
+  padding: 5px;
+  background-color: rgba(0, 200, 0, 0.1);
+  font-size: 0.8em;
+}
+
 .sidebar a {
   display: block;
   color: black;
@@ -23,6 +30,15 @@
 .sidebar a:hover:not(.active) {
   background-color: #555;
   color: white;
+}
+
+.sidebar select {
+    max-width: 90%;
+}
+
+.sidebar option {
+    background-color: #04AA6D;
+    color: white;
 }
 
 div.content {

@@ -1,0 +1,21 @@
+<div class="sidebar">
+  <a class="active" href="#home">Home</a>
+  <a href="#news">News</a>
+  <a href="#contact">Contact</a>
+  <a href="#about">About</a>
+  <br>
+  <div class="roles_panel">
+    <p>Company: </p>
+    <ul>
+      {% for company in comp_user.userprofile.my_companies %}
+          <li><a {% if company.selected %} style="background-color: #148a5fc3;;" {% endif %} href="/main/enter_company/{{ company.id }}"> {{ company.name }} </a></li>
+      {% endfor %}
+    </ul>
+    <p>Role: </p>
+    <ul>
+      {% for role in comp_user.userprofile.available_roles %}
+        <li><a {% if role.selected %} style="background-color: #148a5fc3;;" {% endif %}  href="/main/change_role/{{ role.id }}">{{ role.name }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

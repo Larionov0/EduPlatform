@@ -20,13 +20,28 @@ def subjects(request, id):
 def my_companies(request):
     companies_users = CompanyUser.objects.filter(userprofile=request.user.userprofile)
     companies_ids = set([company_user.company_id for company_user in companies_users])
-    return render(request, 'my_companies.html', context={'companies': Company.objects.filter(id__in=companies_ids)})
+    return render(request, 'my_companies.html', context={'companies': Company.objects.filter(id__in=companies_ids), 'comp_user': companies_users[0]})
+
+
+def change_role(request, id):
+    userprofile = request.user.userprofile
+    comp_user = userprofile.active_company_user
+    if not comp_user:
+        return HttpResponse('You hadn`t pick company')
+    userprofile.active_company_user = CompanyUser.objects.get(role_id=id, company_id=comp_user.company_id, userprofile=userprofile)
+    userprofile.save()
+    return redirect(f'/main/enter_company/{comp_user.company_id}')
 
 
 def enter_company(request, id):
-    comp_users = request.user.userprofile.companyuser_set.filter(company_id=id)
-    comp_user = comp_users[0]
+    comp_user = request.user.userprofile.active_company_user
+    if not comp_user or comp_user.company_id != id:
+        comp_user = request.user.userprofile.companyuser_set.filter(company_id=id)[0]
     role_name = comp_user.role.name
+
+    request.user.userprofile.active_company_user = comp_user
+    request.user.userprofile.save()
+
     return {
         'admin': company_admin,
         'teacher': company_teacher,

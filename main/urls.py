@@ -10,7 +10,9 @@ urlpatterns = [
     path('company_teacher/<int:comp_user_id>', lambda: None),
     path('company_student/<int:comp_user_id>', lambda: None),
     path('enter_company/<int:id>', enter_company, name='enter_company'),
-    path('enter_company/<int:id>', enter_company, name='enter_company'),
+    # path('enter_company/<int:id>', enter_company, name='enter_company'),
+    # path('reenter_company/<int:index>', reenter_company, name='reenter_company'),
+    path('change_role/<int:id>', change_role, name='change_role'),
     path('company/<int:id>/subjects', subjects, name='subjects'),
 
     path('company/<int:id>/edit_subject/<int:subject_id>', edit_subject, name='edit_subject'),
